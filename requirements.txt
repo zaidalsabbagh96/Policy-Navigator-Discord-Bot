@@ -1,0 +1,9 @@
+aixplain
+python-dotenv
+requests
+beautifulsoup4
+lxml
+kaggle
+tqdm
+rich
+discord.py
