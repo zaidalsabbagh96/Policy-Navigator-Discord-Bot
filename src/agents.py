@@ -5,12 +5,14 @@ def build_agent():
 
 def build_single_agent():
     from aixplain.factories import AgentFactory
+    llm_id = env("LLM_ID")
     log.info("Building single aiXplain agent...")
     return AgentFactory.create(
         name="Policy Navigator (Single)",
         description="RAG agent for regulations with web+dataset ingestion.",
         instructions="Use retrieved sources and include brief citations.",
         tools=[],
+        llm_id=llm_id,
     )
 
 def build_team_agent():

@@ -20,4 +20,5 @@ def env_bool(name: str, default: bool = False) -> bool:
 
 import logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logging.getLogger("aixplain").setLevel(logging.WARNING)
 log = logging.getLogger("policy-navigator") # A logger for debugging
