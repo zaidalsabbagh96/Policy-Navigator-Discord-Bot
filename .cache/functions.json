@@ -1,5 +1,5 @@
 {
-    "expiry": 1758443086.7131407,
+    "expiry": 1758537144.9673662,
     "data": {
         "text-normalization": {
             "id": "text-normalization",
@@ -796,50 +796,6 @@
                 }
             }
         },
-        "text-segmenation": {
-            "id": "text-segmenation",
-            "name": "Text Segmentation",
-            "description": null,
-            "params": [
-                {
-                    "name": "Text",
-                    "code": "text",
-                    "required": true,
-                    "isFixed": false,
-                    "dataType": "text",
-                    "dataSubType": "json",
-                    "multipleValues": true
-                },
-                {
-                    "name": "Language",
-                    "code": "language",
-                    "required": true,
-                    "isFixed": true,
-                    "dataType": "label",
-                    "dataSubType": "label",
-                    "multipleValues": false,
-                    "defaultValues": []
-                }
-            ],
-            "output": [
-                {
-                    "name": "Text",
-                    "code": "data",
-                    "defaultValue": [],
-                    "dataType": "text"
-                }
-            ],
-            "metadata": {
-                "modalities": [
-                    "text-text"
-                ],
-                "metaData": {
-                    "InputType": "text",
-                    "OutputType": "text",
-                    "description": "Text Segmentation is the process of dividing a continuous text into meaningful units, such as words, sentences, or topics, to facilitate easier analysis and understanding."
-                }
-            }
-        },
         "asr-gender-classification": {
             "id": "asr-gender-classification",
             "name": "ASR Gender Classification",
@@ -972,59 +928,6 @@
                 }
             }
         },
-        "topic-modeling": {
-            "id": "topic-modeling",
-            "name": "Topic Modeling",
-            "description": null,
-            "params": [
-                {
-                    "name": "Text",
-                    "code": "text",
-                    "required": true,
-                    "isFixed": false,
-                    "dataType": "text",
-                    "dataSubType": "text",
-                    "multipleValues": false,
-                    "defaultValues": []
-                },
-                {
-                    "name": "Language",
-                    "code": "language",
-                    "required": true,
-                    "isFixed": true,
-                    "dataType": "label",
-                    "dataSubType": "label",
-                    "multipleValues": false,
-                    "defaultValues": []
-                },
-                {
-                    "name": "Script",
-                    "code": "script",
-                    "required": false,
-                    "isFixed": true,
-                    "dataType": "label",
-                    "dataSubType": "label",
-                    "multipleValues": false,
-                    "defaultValues": []
-                }
-            ],
-            "output": [
-                {
-                    "name": "Label",
-                    "code": "data",
-                    "defaultValue": [],
-                    "dataType": "label"
-                }
-            ],
-            "metadata": {
-                "modalities": [],
-                "metaData": {
-                    "InputType": "text",
-                    "OutputType": "label",
-                    "description": "Topic modeling is a type of statistical modeling for discovering the abstract \u201ctopics\u201d that occur in a collection of documents."
-                }
-            }
-        },
         "viseme-generation": {
             "id": "viseme-generation",
             "name": "Viseme Generation",
@@ -1090,64 +993,56 @@
                 }
             }
         },
-        "text-generation-metric-default": {
-            "id": "text-generation-metric-default",
-            "name": "Text Generation Metric Default",
+        "topic-modeling": {
+            "id": "topic-modeling",
+            "name": "Topic Modeling",
             "description": null,
             "params": [
                 {
-                    "name": "Hypotheses",
-                    "code": "hypotheses",
+                    "name": "Text",
+                    "code": "text",
                     "required": true,
                     "isFixed": false,
                     "dataType": "text",
                     "dataSubType": "text",
-                    "multipleValues": true,
+                    "multipleValues": false,
                     "defaultValues": []
                 },
                 {
-                    "name": "References",
-                    "code": "references",
-                    "required": false,
-                    "isFixed": false,
-                    "dataType": "text",
-                    "dataSubType": "text",
-                    "multipleValues": true,
-                    "defaultValues": []
-                },
-                {
-                    "name": "Sources",
-                    "code": "sources",
-                    "required": false,
-                    "isFixed": false,
-                    "dataType": "text",
-                    "dataSubType": "text",
-                    "multipleValues": true,
-                    "defaultValues": []
-                },
-                {
-                    "name": "Score Identifier",
-                    "code": "score_identifier",
+                    "name": "Language",
+                    "code": "language",
                     "required": true,
                     "isFixed": true,
-                    "dataType": "text",
-                    "dataSubType": "text",
-                    "multipleValues": false
+                    "dataType": "label",
+                    "dataSubType": "label",
+                    "multipleValues": false,
+                    "defaultValues": []
+                },
+                {
+                    "name": "Script",
+                    "code": "script",
+                    "required": false,
+                    "isFixed": true,
+                    "dataType": "label",
+                    "dataSubType": "label",
+                    "multipleValues": false,
+                    "defaultValues": []
                 }
             ],
             "output": [
                 {
-                    "name": "Score",
+                    "name": "Label",
                     "code": "data",
-                    "dataType": "text"
+                    "defaultValue": [],
+                    "dataType": "label"
                 }
             ],
             "metadata": {
                 "modalities": [],
                 "metaData": {
                     "InputType": "text",
-                    "OutputType": "text",
-                    "description": "The \"Text Generation Metric Default\" function provides a standard set of evaluation metrics for assessing the quality and performance of text generation models."
+                    "OutputType": "label",
+                    "description": "Topic modeling is a type of statistical modeling for discovering the abstract \u201ctopics\u201d that occur in a collection of documents."
                 }
             }
         },
@@ -5656,90 +5551,6 @@
                 }
             }
         },
-        "text-generation": {
-            "id": "text-generation",
-            "name": "Text Generation",
-            "description": null,
-            "params": [
-                {
-                    "name": "Text",
-                    "code": "text",
-                    "required": true,
-                    "isFixed": false,
-                    "dataType": "text",
-                    "dataSubType": "text",
-                    "multipleValues": false,
-                    "defaultValues": []
-                },
-                {
-                    "name": "Temperature",
-                    "code": "temperature",
-                    "required": false,
-                    "isFixed": false,
-                    "dataType": "number",
-                    "dataSubType": "number",
-                    "multipleValues": false,
-                    "defaultValues": []
-                },
-                {
-                    "name": "Prompt",
-                    "code": "prompt",
-                    "required": false,
-                    "isFixed": false,
-                    "dataType": "text",
-                    "dataSubType": "text",
-                    "multipleValues": false
-                },
-                {
-                    "name": "Context",
-                    "code": "context",
-                    "required": false,
-                    "isFixed": false,
-                    "dataType": "text",
-                    "dataSubType": "text",
-                    "multipleValues": false
-                },
-                {
-                    "name": "Language",
-                    "code": "language",
-                    "required": false,
-                    "isFixed": true,
-                    "dataType": "label",
-                    "dataSubType": "label",
-                    "multipleValues": false,
-                    "defaultValues": []
-                },
-                {
-                    "name": "Script",
-                    "code": "script",
-                    "required": false,
-                    "isFixed": true,
-                    "dataType": "label",
-                    "dataSubType": "label",
-                    "multipleValues": false,
-                    "defaultValues": []
-                }
-            ],
-            "output": [
-                {
-                    "name": "Text",
-                    "code": "data",
-                    "defaultValue": [],
-                    "dataType": "text"
-                }
-            ],
-            "metadata": {
-                "modalities": [
-                    "text-text",
-                    "image|text-text"
-                ],
-                "metaData": {
-                    "InputType": "text",
-                    "OutputType": "text",
-                    "description": "Creates coherent and contextually relevant textual content based on prompts or certain parameters. Useful for chatbots, content creation, and data augmentation."
-                }
-            }
-        },
         "speaker-diarization-video": {
             "id": "speaker-diarization-video",
             "name": "Speaker Diarization Video",
@@ -6107,6 +5918,195 @@
                     "InputType": "audio",
                     "OutputType": "text",
                     "description": "Transforms spoken content into a fixed-size vector in a high-dimensional space that captures the content's essence. Facilitates tasks like speech recognition and speaker verification."
+                }
+            }
+        },
+        "text-generation-metric-default": {
+            "id": "text-generation-metric-default",
+            "name": "Text Generation Metric Default",
+            "description": null,
+            "params": [
+                {
+                    "name": "Hypotheses",
+                    "code": "hypotheses",
+                    "required": true,
+                    "isFixed": false,
+                    "dataType": "text",
+                    "dataSubType": "text",
+                    "multipleValues": true,
+                    "defaultValues": []
+                },
+                {
+                    "name": "References",
+                    "code": "references",
+                    "required": false,
+                    "isFixed": false,
+                    "dataType": "text",
+                    "dataSubType": "text",
+                    "multipleValues": true,
+                    "defaultValues": []
+                },
+                {
+                    "name": "Sources",
+                    "code": "sources",
+                    "required": false,
+                    "isFixed": false,
+                    "dataType": "text",
+                    "dataSubType": "text",
+                    "multipleValues": true,
+                    "defaultValues": []
+                },
+                {
+                    "name": "Score Identifier",
+                    "code": "score_identifier",
+                    "required": true,
+                    "isFixed": true,
+                    "dataType": "text",
+                    "dataSubType": "text",
+                    "multipleValues": false
+                }
+            ],
+            "output": [
+                {
+                    "name": "Score",
+                    "code": "data",
+                    "dataType": "text"
+                }
+            ],
+            "metadata": {
+                "modalities": [],
+                "metaData": {
+                    "InputType": "text",
+                    "OutputType": "text",
+                    "description": "The \"Text Generation Metric Default\" function provides a standard set of evaluation metrics for assessing the quality and performance of text generation models."
+                }
+            }
+        },
+        "text-segmenation": {
+            "id": "text-segmenation",
+            "name": "Text Segmentation",
+            "description": null,
+            "params": [
+                {
+                    "name": "Text",
+                    "code": "text",
+                    "required": true,
+                    "isFixed": false,
+                    "dataType": "text",
+                    "dataSubType": "json",
+                    "multipleValues": true
+                },
+                {
+                    "name": "Language",
+                    "code": "language",
+                    "required": true,
+                    "isFixed": true,
+                    "dataType": "label",
+                    "dataSubType": "label",
+                    "multipleValues": false,
+                    "defaultValues": []
+                }
+            ],
+            "output": [
+                {
+                    "name": "Text",
+                    "code": "data",
+                    "defaultValue": [],
+                    "dataType": "text"
+                }
+            ],
+            "metadata": {
+                "modalities": [
+                    "text-text"
+                ],
+                "metaData": {
+                    "InputType": "text",
+                    "OutputType": "text",
+                    "description": "Text Segmentation is the process of dividing a continuous text into meaningful units, such as words, sentences, or topics, to facilitate easier analysis and understanding."
+                }
+            }
+        },
+        "text-generation": {
+            "id": "text-generation",
+            "name": "Text Generation",
+            "description": null,
+            "params": [
+                {
+                    "name": "Text",
+                    "code": "text",
+                    "required": true,
+                    "isFixed": false,
+                    "dataType": "text",
+                    "dataSubType": "text",
+                    "multipleValues": false,
+                    "defaultValues": []
+                },
+                {
+                    "name": "Temperature",
+                    "code": "temperature",
+                    "required": false,
+                    "isFixed": false,
+                    "dataType": "number",
+                    "dataSubType": "number",
+                    "multipleValues": false,
+                    "defaultValues": []
+                },
+                {
+                    "name": "Prompt",
+                    "code": "prompt",
+                    "required": false,
+                    "isFixed": false,
+                    "dataType": "text",
+                    "dataSubType": "text",
+                    "multipleValues": false
+                },
+                {
+                    "name": "Context",
+                    "code": "context",
+                    "required": false,
+                    "isFixed": false,
+                    "dataType": "text",
+                    "dataSubType": "text",
+                    "multipleValues": false
+                },
+                {
+                    "name": "Language",
+                    "code": "language",
+                    "required": false,
+                    "isFixed": true,
+                    "dataType": "label",
+                    "dataSubType": "label",
+                    "multipleValues": false,
+                    "defaultValues": []
+                },
+                {
+                    "name": "Script",
+                    "code": "script",
+                    "required": false,
+                    "isFixed": true,
+                    "dataType": "label",
+                    "dataSubType": "label",
+                    "multipleValues": false,
+                    "defaultValues": []
+                }
+            ],
+            "output": [
+                {
+                    "name": "Text",
+                    "code": "data",
+                    "defaultValue": [],
+                    "dataType": "text"
+                }
+            ],
+            "metadata": {
+                "modalities": [
+                    "text-text",
+                    "image|text-text"
+                ],
+                "metaData": {
+                    "InputType": "text",
+                    "OutputType": "text",
+                    "description": "Creates coherent and contextually relevant textual content based on prompts or certain parameters. Useful for chatbots, content creation, and data augmentation."
                 }
             }
         },
