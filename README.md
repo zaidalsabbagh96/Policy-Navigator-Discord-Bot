@@ -16,6 +16,9 @@ The Policy Navigator agent can:
 - **Handle document uploads** and URL ingestion through Discord commands
 - **Maintain conversation context** for follow-up questions
 
+### Demo Video
+https://drive.google.com/file/d/1NaXtL3vb3LQfn3ibmtorsGbHlmhEPoPs/view
+
 ### Example Capabilities
 
 **Policy Status Checking:**
