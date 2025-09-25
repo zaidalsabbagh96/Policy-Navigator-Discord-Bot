@@ -168,7 +168,7 @@ Executive Order 14067 was signed on March 9, 2022, by President Biden, titled "E
 Sources
 • https://www.federalregister.gov/executive-orders
 ```
-
+```
 ## Technical Implementation
 
 ### Vector Storage
