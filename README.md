@@ -17,7 +17,7 @@ The Policy Navigator agent can:
 - **Maintain conversation context** for follow-up questions
 
 ### Demo Video
-https://drive.google.com/file/d/1NaXtL3vb3LQfn3ibmtorsGbHlmhEPoPs/view
+https://drive.google.com/file/d/1F70Kk_rTU6uomfkBVw-c-faejNPHwsZt/view?usp=sharing
 
 ### Example Capabilities
 
@@ -287,9 +287,6 @@ To add new data sources:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
 
