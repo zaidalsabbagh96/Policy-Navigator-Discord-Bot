@@ -63,7 +63,6 @@ def load(session_id: str) -> List[Dict[str, Any]]:
         return _CACHE[session_id]
     p = _path_for(session_id)
     if p.exists():
-        # Be tolerant of a concurrent write by retrying a couple times.
         for _ in range(3):
             try:
                 _CACHE[session_id] = json.loads(p.read_text(encoding="utf-8"))
@@ -90,12 +89,10 @@ def clear(session_id: str) -> None:
     p = _path_for(session_id)
     try:
         if p.exists():
-            # Use lock to avoid race with concurrent read/write
             with _io_lock:
                 try:
                     p.unlink()
                 except PermissionError:
-                    # On Windows another process may still hold a handle briefly
                     try:
                         os.remove(p)
                     except Exception:

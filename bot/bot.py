@@ -15,7 +15,6 @@ from src import memory
 
 load_dotenv()
 
-# Best-effort cache cleanup to dodge stale Windows locks
 from pathlib import Path
 import time as _t
 
@@ -190,33 +189,40 @@ def _maybe_parse_structured_string(s: str) -> Any | None:
 def _extract_raw_output(result: Any) -> str | None:
     if isinstance(result, str):
         return _strip_code_fences(result).strip()
-    if hasattr(result, "text") and getattr(result, "text"):
-        return _strip_code_fences(str(result.text)).strip()
+
+    for attr in ("output", "text", "message", "content"):
+        if hasattr(result, attr) and getattr(result, attr):
+            return _strip_code_fences(str(getattr(result, attr))).strip()
+
     data = getattr(result, "data", None)
-    out = None
-    if isinstance(data, dict):
-        out = (
-            data.get("output")
-            or data.get("text")
-            or data.get("message")
-            or data.get("content")
-        )
-    elif isinstance(result, dict):
-        out = (
-            result.get("response")
-            or result.get("output")
-            or result.get("text")
-            or result.get("message")
-            or result
-        )
-    if out is None:
+    if data is None:
         return None
-    if isinstance(out, (str, int, float)):
-        return _strip_code_fences(str(out)).strip()
+
     try:
-        return json.dumps(out, indent=2)
+        if hasattr(data, "to_dict"):
+            data = data.to_dict()
     except Exception:
-        return str(out)
+        pass
+
+    if isinstance(data, (str, int, float)):
+        return _strip_code_fences(str(data)).strip()
+
+    if isinstance(data, dict):
+        for k in ("output", "text", "message", "content"):
+            v = data.get(k)
+            if isinstance(v, (str, int, float)):
+                return _strip_code_fences(str(v)).strip()
+        try:
+            return json.dumps(data, indent=2)
+        except Exception:
+            return str(data)
+
+    for attr in ("output", "text", "message", "content"):
+        v = getattr(data, attr, None)
+        if v:
+            return _strip_code_fences(str(v)).strip()
+
+    return None
 
 
 def _to_text(result: Any) -> str:
@@ -225,44 +231,84 @@ def _to_text(result: Any) -> str:
         if parsed is not None:
             return _to_text(parsed)
         return result.strip()
-    if hasattr(result, "text") and getattr(result, "text"):
-        return str(result.text).strip()
+
+    for attr in ("text", "output", "message", "content"):
+        if hasattr(result, attr) and getattr(result, attr):
+            val = getattr(result, attr)
+            if isinstance(val, str):
+                parsed = _maybe_parse_structured_string(val)
+                return _to_text(parsed) if parsed is not None else val.strip()
+
     data = getattr(result, "data", None)
-    out = None
-    if isinstance(data, dict):
-        out = (
-            data.get("output")
-            or data.get("text")
-            or data.get("message")
-            or data.get("content")
-        )
-    elif isinstance(result, dict):
-        out = (
-            result.get("response")
-            or result.get("output")
-            or result.get("text")
-            or result.get("message")
-            or result
-        )
-    if isinstance(out, str):
-        parsed = _maybe_parse_structured_string(out)
-        if parsed is not None:
-            return _to_text(parsed)
-        return out.strip()
-    if isinstance(out, dict):
-        themes = out.get("summary", {}).get("themes")
-        if isinstance(themes, list) and themes:
-            return _themes_to_text(themes)
-        return _dict_to_natural(out)
-    if isinstance(result, dict):
-        return _dict_to_natural(result)
-    return str(result)
+    if data is not None:
+        try:
+            if hasattr(data, "to_dict"):
+                data = data.to_dict()
+        except Exception:
+            pass
+
+        if isinstance(data, str):
+            parsed = _maybe_parse_structured_string(data)
+            return _to_text(parsed) if parsed is not None else data.strip()
+
+        if isinstance(data, dict):
+            out = (
+                data.get("output")
+                or data.get("text")
+                or data.get("message")
+                or data.get("content")
+            )
+            if isinstance(out, str):
+                parsed = _maybe_parse_structured_string(out)
+                return _to_text(parsed) if parsed is not None else out.strip()
+            if isinstance(out, dict):
+                themes = out.get("summary", {}).get("themes")
+                if isinstance(themes, list) and themes:
+                    return _themes_to_text(themes)
+                return _dict_to_natural(out)
+            return _dict_to_natural(data)
+
+        for attr in ("output", "text", "message", "content"):
+            v = getattr(data, attr, None)
+            if isinstance(v, str):
+                parsed = _maybe_parse_structured_string(v)
+                return _to_text(parsed) if parsed is not None else v.strip()
+
+    try:
+        return _dict_to_natural(dict(result))
+    except Exception:
+        return str(result)
+
+
+def _clean_sources(text: str) -> str:
+    lines = text.strip().split("\n")
+    cleaned_lines = []
+
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+
+        line = re.sub(r"^[•\-\*]\s*", "", line)
+
+        if line.startswith("http"):
+            cleaned_lines.append(line)
+        elif "federalregister.gov" in line or "whitehouse.gov" in line:
+            cleaned_lines.append(line)
+        elif line.endswith(".csv") or "data/uploads/" in line or "data/web/" in line:
+            continue
+        elif not ("C:\\" in line or "/Users/" in line or "Desktop" in line):
+            cleaned_lines.append(line)
+
+    return "\n".join(f"• {line}" for line in cleaned_lines) if cleaned_lines else ""
 
 
 def _split_answer_and_sources(text: str):
     m = re.split(r"\n\*\*Sources\*\*\n", text, maxsplit=1)
     if len(m) == 2:
-        return m[0].strip(), m[1].strip()
+        answer = m[0].strip()
+        sources = _clean_sources(m[1])
+        return answer, sources if sources else None
     return text.strip(), None
 
 
@@ -309,10 +355,9 @@ def _answer_embed(
     e = discord.Embed(title=title, description=desc, color=0x18A999)
     e.set_footer(text="Policy Navigator • aiXplain agent + indexed sources")
     if sources_text:
-        bullets = "\n".join(
-            f"• {line.strip()}" for line in sources_text.splitlines() if line.strip()
+        sources_field = (
+            sources_text if len(sources_text) <= 1024 else sources_text[:1000] + "\n…"
         )
-        sources_field = bullets if len(bullets) <= 1024 else bullets[:1000] + "\n…"
         e.add_field(name="Sources", value=sources_field, inline=False)
     embeds.append(e)
     remainder = answer_text[4096:]
@@ -321,42 +366,18 @@ def _answer_embed(
     return embeds
 
 
-def _apply_detail(pretty: str, raw: str | None, force_detail: bool) -> str:
-    if not raw:
-        return pretty
-    raw_clean = _strip_code_fences(raw)
-    if force_detail:
-        extra = raw_clean
-    else:
-        too_short = len(pretty) < 280 and len(raw_clean) > len(pretty) + 60
-        extra = raw_clean if too_short else None
-    if not extra:
-        return pretty
-    extra = extra[:1500]
-    return f"{pretty}\n\n**Details**\n{extra}"
-
-
-def _parse_detail_flag_from_prefix(content: str) -> tuple[bool, str]:
-    body = content[len(PREFIX) :].strip()
-    if body.startswith("-d "):
-        return True, body[3:].strip()
-    if body.startswith("--detail "):
-        return True, body[9:].strip()
-    return False, body
-
-
 def _session_id_from_interaction(ix: discord.Interaction) -> str:
     ch = ix.channel
     if isinstance(ch, discord.DMChannel) or getattr(ch, "guild", None) is None:
-        return f"user:{ix.user.id}:dm:{ch.id}"
-    return f"guild:{ch.guild.id}:channel:{ch.id}"
+        return f"user-{ix.user.id}-dm-{ch.id}"
+    return f"guild-{ch.guild.id}-channel-{ch.id}"
 
 
 def _session_id_from_message(msg: discord.Message) -> str:
     ch = msg.channel
     if isinstance(ch, discord.DMChannel) or getattr(ch, "guild", None) is None:
-        return f"user:{msg.author.id}:dm:{ch.id}"
-    return f"guild:{ch.guild.id}:channel:{ch.id}"
+        return f"user-{msg.author.id}-dm-{ch.id}"
+    return f"guild-{ch.guild.id}-channel-{ch.id}"
 
 
 intents = discord.Intents.default()
@@ -399,51 +420,37 @@ async def on_guild_join(guild: discord.Guild):
 
 
 @client.tree.command(name="ask", description="Ask the Policy Navigator agent.")
-@app_commands.describe(
-    query="Your question",
-    detail="Include a richer 'Details' section (more verbose)",
-    private="Send the answer ephemerally (visible only to you)",
-)
-async def slash_ask(
-    interaction: discord.Interaction,
-    query: str,
-    detail: bool = False,
-    private: bool = False,
-):
-    await interaction.response.defer(thinking=True, ephemeral=private)
+@app_commands.describe(query="Your question")
+async def slash_ask(interaction: discord.Interaction, query: str):
+    await interaction.response.defer(thinking=True)
     loop = asyncio.get_running_loop()
     session_id = _session_id_from_interaction(interaction)
     try:
         result = await loop.run_in_executor(
             None, partial(answer, query, session_id=session_id)
         )
-        pretty = _to_text(result)
-        raw = _extract_raw_output(result)
-        final_text = _apply_detail(pretty, raw, force_detail=detail)
+        final_text = _to_text(result)
     except Exception as e:
         final_text = f"Sorry, something went wrong: {e}"
 
     body, sources = _split_answer_and_sources(final_text)
     title = _title_for(query, body)
     embeds = _answer_embed(body, sources, title=title)
-    await interaction.followup.send(embed=embeds[0], ephemeral=private)
+    await interaction.followup.send(embed=embeds[0])
     for e in embeds[1:]:
-        await interaction.followup.send(embed=e, ephemeral=private)
+        await interaction.followup.send(embed=e)
 
 
 @client.tree.command(name="add", description="Add a URL or upload a file to the index.")
 @app_commands.describe(
-    url="Public URL to ingest (HTML will be fetched)",
-    file="File to upload and index",
-    private="Send the result ephemerally (visible only to you)",
+    url="Public URL to ingest (HTML will be fetched)", file="File to upload and index"
 )
 async def slash_add(
     interaction: discord.Interaction,
     url: Optional[str] = None,
     file: Optional[discord.Attachment] = None,
-    private: bool = True,
 ):
-    await interaction.response.defer(thinking=True, ephemeral=private)
+    await interaction.response.defer(thinking=True, ephemeral=True)
     loop = asyncio.get_running_loop()
     msgs: list[str] = []
 
@@ -466,11 +473,11 @@ async def slash_add(
 
     if not msgs:
         await interaction.followup.send(
-            "Provide a `url` and/or `file`.", ephemeral=private
+            "Provide a `url` and/or `file`.", ephemeral=True
         )
         return
 
-    await interaction.followup.send("\n".join(msgs), ephemeral=private)
+    await interaction.followup.send("\n".join(msgs), ephemeral=True)
 
 
 @client.tree.command(
@@ -496,19 +503,9 @@ async def on_message(message: discord.Message):
     if not content.lower().startswith(PREFIX):
         return
 
-    def _parse_detail(s: str) -> tuple[bool, str]:
-        body = s[len(PREFIX) :].strip()
-        if body.startswith("-d "):
-            return True, body[3:].strip()
-        if body.startswith("--detail "):
-            return True, body[9:].strip()
-        return False, body
-
-    detail_flag, query = _parse_detail(content)
+    query = content[len(PREFIX) :].strip()
     if not query:
-        await message.reply(
-            f"Usage: `{PREFIX} your question…` or `{PREFIX} -d your question…` for more detail"
-        )
+        await message.reply(f"Usage: `{PREFIX} your question…`")
         return
 
     async with message.channel.typing():
@@ -518,9 +515,7 @@ async def on_message(message: discord.Message):
             result = await loop.run_in_executor(
                 None, partial(answer, query, session_id=session_id)
             )
-            pretty = _to_text(result)
-            raw = _extract_raw_output(result)
-            final_text = _apply_detail(pretty, raw, force_detail=detail_flag)
+            final_text = _to_text(result)
         except Exception as e:
             final_text = f"Sorry, something went wrong: {e}"
 

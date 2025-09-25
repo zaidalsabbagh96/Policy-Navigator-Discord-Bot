@@ -6,4 +6,5 @@ lxml
 kaggle
 tqdm
 rich
-discord.py
+discord.py>=2.3
+PyPDF2

@@ -3,16 +3,20 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Dict, Any, Iterable, Tuple, List
-from tempfile import TemporaryDirectory
 
 from src.utils import env, log
 
 DATA_DIR = env("DATA_DIR") or str(Path.cwd() / "data")
 
-# Chunking to avoid 500s from huge payloads
 _CHUNK_CHARS = 1800
 _CHUNK_OVERLAP = 200
 _BATCH_SIZE = 50
+
+BLOCK_SNIPS = (
+    "Request Access",
+    "programmatic access to these sites is limited",
+    "aggressive automated scraping",
+)
 
 
 def get_index():
@@ -47,7 +51,6 @@ def _html_to_text(html: str) -> str:
         from bs4 import BeautifulSoup
 
         soup = BeautifulSoup(html, "lxml")
-        # remove script/style
         for bad in soup(["script", "style", "noscript"]):
             bad.decompose()
         return soup.get_text(" ", strip=True)
@@ -59,22 +62,35 @@ def _extract_text_from_path(path: Path) -> str | None:
     suff = path.suffix.lower()
     try:
         if suff in {".txt", ".md", ".csv", ".json"}:
-            return path.read_text(encoding="utf-8", errors="ignore")
+            txt = path.read_text(encoding="utf-8", errors="ignore")
+            return txt
         if suff in {".html", ".htm"}:
             raw = path.read_text(encoding="utf-8", errors="ignore")
+            lower = raw[:20000].lower()
+            if any(s.lower() in lower for s in BLOCK_SNIPS):
+                log.info(f"Detected blocker HTML; skipping content for {path.name}")
+                return ""
             return _html_to_text(raw)
         if suff == ".pdf":
             try:
-                from PyPDF2 import PdfReader
+                from pdfminer.high_level import extract_text as pdf_extract_text
 
-                reader = PdfReader(str(path))
-                return "\n".join((page.extract_text() or "") for page in reader.pages)
+                return pdf_extract_text(path.as_posix()) or ""
             except Exception as e:
-                log.info(f"PDF text extraction skipped for {path}: {e}")
-                return None
+                log.info(f"pdfminer failed for {path.name}, trying PyPDF2: {e}")
+                try:
+                    from PyPDF2 import PdfReader
+
+                    reader = PdfReader(str(path))
+                    return "\n".join(
+                        (page.extract_text() or "") for page in reader.pages
+                    )
+                except Exception as e2:
+                    log.info(f"PDF text extraction skipped for {path}: {e2}")
+                    return ""
     except Exception as e:
         log.warning(f"Read failed for {path}: {e}")
-    return None
+    return ""
 
 
 def _chunk_text(
@@ -96,9 +112,6 @@ def _chunk_text(
         if start < 0:
             start = 0
     return chunks
-
-
-# ---------- SDK helpers ----------
 
 
 def _ok(ret: Any) -> bool:
@@ -146,9 +159,6 @@ def _try_many(index, name: str, payloads: Iterable[Any]) -> Tuple[bool, Any]:
     return False, None
 
 
-# ---------- Ingest using Record(value, attributes) ----------
-
-
 def _record_upsert(index, texts: List[str], metadatas: List[Dict[str, Any]]) -> bool:
     try:
         from aixplain.modules.model.record import Record
@@ -156,7 +166,6 @@ def _record_upsert(index, texts: List[str], metadatas: List[Dict[str, Any]]) -> 
         return False
 
     recs = [Record(value=t, attributes=(m or {})) for t, m in zip(texts, metadatas)]
-    # batch to avoid supplier size limits
     for i in range(0, len(recs), _BATCH_SIZE):
         batch = recs[i : i + _BATCH_SIZE]
         ok, _ = _try_many(index, "upsert", [dict(records=batch), batch])
@@ -176,7 +185,6 @@ def _push_text(index, text: str, metadata: Dict[str, Any]):
     if _record_upsert(index, chunks, metas):
         return
 
-    # Fallback shapes (older SDKs)
     for i in range(0, len(chunks), _BATCH_SIZE):
         c = chunks[i : i + _BATCH_SIZE]
         m = metas[i : i + _BATCH_SIZE]
@@ -198,7 +206,6 @@ def _push_text(index, text: str, metadata: Dict[str, Any]):
             if ok:
                 break
         else:
-            # try single-record fallbacks before giving up
             for t, mm in zip(c, m):
                 single_tries = [
                     ("upsert", dict(records=[{"text": t, "metadata": mm}])),
@@ -211,19 +218,12 @@ def _push_text(index, text: str, metadata: Dict[str, Any]):
                     )
 
 
-def _push_file(index, path: Path, metadata: Dict[str, Any], _is_temp: bool = False):
+def _push_file(index, path: Path, metadata: Dict[str, Any]):
     text = _extract_text_from_path(path)
-    if text:
-        _push_text(index, text, metadata)
+    if not text or not text.strip():
+        log.info(f"Index skip: empty/blocked content for {path.name}")
         return
-
-    placeholder = f"[file: {path.name}]"
-    _push_text(
-        index, placeholder, {**metadata, "filename": path.name, "path": str(path)}
-    )
-
-
-# ---------- public API ----------
+    _push_text(index, text, metadata)
 
 
 def add_file_to_index(index, path: Path, source_hint: str = "") -> bool:
