@@ -215,54 +215,11 @@ To add new data sources:
 
 ### Planned Enhancements
 
-1. **Enhanced Detail Control**
+**Enhanced Detail Control**
    - **Details Parameter**: Add `details: true` option to Discord commands for comprehensive responses
    - **Rich Context**: Detailed responses include source citations, regulatory context, and related policy connections
    - **Implementation Guidance**: Provide actionable steps for compliance and policy implementation
    - **Cross-Reference Analysis**: Show connections between related policies, amendments, and court cases
-
-2. **Policy Timeline Tracking**
-   - **Temporal Analysis**: Implement automatic tracking of policy changes over time
-   - **Amendment History**: Show evolution of regulations with before/after comparisons
-   - **Visual Timelines**: Interactive policy development timelines with key milestones
-   - **Change Notifications**: Alert users when tracked policies are updated or amended
-   - **Regulatory Impact Assessment**: Analyze how policy changes affect different sectors
-
-3. **Compliance Risk Assessment Engine**
-   - **Industry-Specific Analysis**: Intelligent risk scoring based on business type, size, and location
-   - **Regulatory Mapping**: Match business activities to applicable policy requirements
-   - **Compliance Dashboards**: Visual risk assessment with actionable recommendations
-   - **Deadline Tracking**: Monitor compliance deadlines and implementation timelines
-   - **Cost Impact Analysis**: Estimate financial impact of regulatory compliance requirements
-
-4. **Additional Agents**
-   - Specialized summarization agent for long documents
-   - Analytics agent for policy trend analysis
-   - Legal precedent analysis agent for court case integration
-
-2. **UI Improvements**
-   - Web-based interface alongside Discord bot
-   - Rich formatting for policy documents
-   - Interactive policy timelines and visualizations
-
-3. **Additional Data Integrations**
-   - Federal Register API for real-time policy updates
-   - CourtListener API for case law integration
-   - State and local government policy databases
-   - International policy and regulation sources
-
-4. **Advanced Features**
-   - Caching layer for faster response times
-   - Multi-language policy document support
-   - Policy change notifications and alerts
-   - Automated compliance report generation
-   - Integration with calendar apps for policy deadlines
-
-5. **Technical Enhancements**
-   - Redis caching for improved performance
-   - Database optimization for large-scale document storage
-   - Advanced embedding models for better semantic search
-   - Real-time policy monitoring and update detection
 
 ## Contributing
 
