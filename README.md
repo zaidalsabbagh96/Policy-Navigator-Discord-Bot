@@ -285,8 +285,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Contact
 
 For questions or issues, please open a GitHub issue or contact me directly via linkedin or gmail
-Gmail: sabbaghzaid88@gmail.com
-linkedin: https://www.linkedin.com/in/zaid-sabbagh-6a7287227/
+- Gmail: sabbaghzaid88@gmail.com
+- linkedin: https://www.linkedin.com/in/zaid-sabbagh-6a7287227/
 ---
 
 **Note**: This project was developed as part of the aiXplain Certification Course Project for building multi-agent RAG systems.
