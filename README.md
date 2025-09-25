@@ -108,6 +108,61 @@ GUILD_ID=your_guild_id_optional
 python bot.py
 ```
 
+## Discord Bot Setup
+
+### For Bot Owners (Hosting the Bot)
+
+1. **Create a Discord Application:**
+   - Go to [Discord Developer Portal](https://discord.com/developers/applications)
+   - Click "New Application" and give it a name
+   - Go to the "Bot" section and click "Add Bot"
+   - Copy the bot token to your `.env` file as `DISCORD_TOKEN`
+
+2. **Set Bot Permissions:**
+   - In the "Bot" section, enable these permissions:
+     - Send Messages
+     - Use Slash Commands
+     - Embed Links
+     - Attach Files
+     - Read Message History
+   - In the "OAuth2 > URL Generator":
+     - Select "bot" and "applications.commands" scopes
+     - Select the same permissions as above
+     - Copy the generated URL for inviting the bot
+
+3. **Deploy the Bot:**
+   - Run `python bot.py` to start the bot
+   - The bot will automatically sync slash commands when it starts
+
+### For Users (Inviting the Bot to Your Server)
+
+**Option 1: Use Hosted Bot (if available)**
+- Contact the bot owner for an invite link
+- Click the invite link and select your server
+- Ensure you have "Manage Server" permissions
+
+**Option 2: Self-Host the Bot**
+- Follow the complete setup instructions above
+- Host the bot on your own server or local machine
+- Generate your own invite link from the Discord Developer Portal
+
+### Server Configuration
+
+Once the bot is in your server:
+
+1. **Set Channel Permissions** (optional):
+   - Create a dedicated channel like `#policy-research`
+   - Restrict bot usage to specific channels if desired
+
+2. **Test the Bot:**
+   ```
+   /ask query: "Test query"
+   ```
+
+3. **Configure Guild ID** (optional):
+   - Add your server's Guild ID to `.env` as `GUILD_ID` for faster command syncing
+   - Find Guild ID: Server Settings > Widget > Server ID
+
 ## Data Sources
 
 The system is pre-configured with knowledge from multiple data sources:
